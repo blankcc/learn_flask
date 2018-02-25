@@ -26,17 +26,18 @@ class File(db.Model):
 		self.content = content
 
 	def add_tag(self,tag_name):
-		file_item = mongo.files.find_one({'file_id':self.id})
+		file_item = mongo.file.find_one({'file_id':self.id})
 		if file_item:
 			tags = file_item['tags']
 			if tag_name not in tags:
-				mongo.files.update_one({'file_id':self.id},{'$set':{'tags':tags}})
+				tags.append(tag_name)
+			mongo.file.update_one({'file_id':self.id},{'$set':{'tags':tags}})
 		else:
 			tags = [tag_name]
 			mongo.file.insert_one({'file_id':self.id,'tags':tags})
 		return tags
 	def remove_tag(self,tag_name):
-		file_item = mongo.files.find_one({'file_id':self.id})
+		file_item = mongo.file.find_one({'file_id':self.id})
 		if file_item:
 			tags = file_item['tags']
 			try:
@@ -44,12 +45,12 @@ class File(db.Model):
 				new_tags = tags
 			except ValueError:
 				return tags
-			mongo.fils.update_one({'file_id':self.id},{'$set':{'tags':new_tags}})
+			mongo.file.update_one({'file_id':self.id},{'$set':{'tags':new_tags}})
 			return new_tags
 		return []
 	@property
 	def tags(self):
-		file_item = mongo.files.find_one({'file_id':self.id})
+		file_item = mongo.file.find_one({'file_id':self.id})
 		if file_item:
 			print(file_item)
 			return file_item['tags']
